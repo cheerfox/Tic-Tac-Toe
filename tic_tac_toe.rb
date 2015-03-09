@@ -2,6 +2,7 @@
 # Randomly pick for the computer
 
 WIN_DATA = [[1,2,3], [4,5,6], [7,8,9], [1,4,7], [2,5,8], [3,6,9], [1,5,9], [3,5,7]]
+CHOICES = (1..9)
 
 def draw_board(board_data)
   system 'clear'
@@ -22,21 +23,20 @@ def user_pick(board_data,user_have_chosen)
   begin
     puts "Choose a position from 1 to 9"
     pick = gets.chomp.to_i
-  end until (1..9).include?(pick) && board_data[pick] == " " 
+  end until CHOICES.include?(pick) && board_data[pick] == " " 
   board_data[pick] = 'O'
   user_have_chosen << pick
-
 end
 
 def computer_pick(board_data, computer_have_chosen)
   begin
-    pick = (1..9).to_a.sample
+    pick = CHOICES.to_a.sample
   end until board_data[pick] == " "
   board_data[pick] = 'X'
   computer_have_chosen << pick
 end
 
-def whether_someone_wins?(board_data, user_have_chosen, computer_have_chosen)
+def any_winner?(board_data, user_have_chosen, computer_have_chosen)
   WIN_DATA.each do |win_data|
     if (win_data - user_have_chosen).empty?
       draw_board(board_data)
@@ -49,7 +49,7 @@ def whether_someone_wins?(board_data, user_have_chosen, computer_have_chosen)
       return true
     end
   end
-  return false   
+  false   
 end
 
 def is_tie?(board_data)
@@ -60,16 +60,20 @@ def is_tie?(board_data)
   end
 end
 
+def game_finished?(board_data, user_have_chosen, computer_have_chosen)
+  any_winner?(board_data, user_have_chosen, computer_have_chosen) || is_tie?(board_data)
+end
+
 def play_game
   board_data = ['X',' ',' ',' ',' ',' ', ' ', ' ', ' ', ' ']
   user_have_chosen = []
   computer_have_chosen = []
   loop do
     draw_board(board_data)
-    user_pick(board_data,user_have_chosen)
-    break if whether_someone_wins?(board_data, user_have_chosen, computer_have_chosen) || is_tie?(board_data)
+    user_pick(board_data, user_have_chosen)
+    break if game_finished?(board_data, user_have_chosen, computer_have_chosen)
     computer_pick(board_data, computer_have_chosen)
-    break if whether_someone_wins?(board_data, user_have_chosen, computer_have_chosen) || is_tie?(board_data)
+    break if game_finished?(board_data, user_have_chosen, computer_have_chosen)
   end
 end
 
